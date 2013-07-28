@@ -77,6 +77,7 @@ define tahoe::introducer (
     ensure    => $ensure,
     directory => $directory,
     type      => 'introducer',
+    webport   => $webport,
   }
 
   if $webport {
