@@ -28,6 +28,7 @@ class tahoe::egg inherits tahoe::base {
   }
 
   exec {'easy_install allmydata-tahoe':
+    path   => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
     unless => "python -c 'import allmydata'",
   }
 }
@@ -224,6 +225,7 @@ define tahoe::node (
 
       exec {"create ${type} ${name}":
         command   => "tahoe create-${type} --basedir=${directory}",
+        path      => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
         user      => $user,
         logoutput => on_failure,
         creates   => "${directory}/tahoe-${type}.tac",
@@ -236,6 +238,7 @@ define tahoe::node (
       #
       exec {"update-rc.d tahoe-${name} defaults":
         creates => "/etc/rc2.d/S20tahoe-${name}",
+        path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
         require => [File["/etc/init.d/tahoe-${name}"], Package['tahoe-lafs']],
       }
 
@@ -248,6 +251,7 @@ define tahoe::node (
 
     absent: {
       exec {"update-rc.d -f tahoe-${name} remove":
+        path   => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
         onlyif => "test -f /etc/rc2.d/S20tahoe-${name}",
       }
     }
