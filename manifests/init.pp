@@ -177,6 +177,25 @@ define tahoe::node (
   $tahoe_cfg = "${directory}/tahoe.cfg"
   $user = "tahoe-${name}"
 
+  case $ensure {
+    present: {
+      Package['tahoe-lafs']->
+      User[$user]->File[$directory]->
+      Exec["create ${type} ${name}"]->
+      File["/etc/init.d/tahoe-${name}"]->
+      Exec["update-rc.d tahoe-${name} defaults"]->
+      File[$tahoe_cfg]~>Service["tahoe-${name}"]
+    }
+    absent: {
+      Service["tahoe-${name}"]->
+      Exec["update-rc.d -f tahoe-${name} remove"]->
+      File["/etc/init.d/tahoe-${name}"]->
+      File[$tahoe_cfg]->File[$directory]->
+      User[$user]->Package['tahoe-lafs']
+    }
+    default: { fail "invalid ensure value: ${ensure}" }
+  }
+
   user {$user:
     ensure => $ensure,
     home   => $directory,
@@ -202,10 +221,6 @@ define tahoe::node (
     ensure  => $ensure,
     content => template('tahoe/tahoe.init.erb'),
     mode    => 755,
-    require => $ensure ? {
-      present => Exec["create ${type} ${name}"],
-      absent  => [],
-    },
   }
 
   $nickname = "${name}@${fqdn}"
@@ -216,37 +231,32 @@ define tahoe::node (
   file {$tahoe_cfg:
     ensure  => $ensure,
     content => template('tahoe/tahoe.cfg.erb'),
-    notify  => Service["tahoe-${name}"],
-    require => Exec["create ${type} ${name}"],
+  }
+
+  #
+  # Service
+  #
+  service {"tahoe-${name}":
+    ensure  => $ensure ? {
+      present => running,
+      absent  => stopped,
+    },
   }
 
   case $ensure {
     present: {
-
       exec {"create ${type} ${name}":
         command   => "tahoe create-${type} --basedir=${directory}",
         path      => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
         user      => $user,
         logoutput => on_failure,
         creates   => "${directory}/tahoe-${type}.tac",
-        require   => [File[$directory], Package['tahoe-lafs']],
-        before    => Service["tahoe-${name}"],
       }
 
-      #
-      # Service
-      #
       exec {"update-rc.d tahoe-${name} defaults":
-        creates => "/etc/rc2.d/S20tahoe-${name}",
         path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        require => [File["/etc/init.d/tahoe-${name}"], Package['tahoe-lafs']],
+        creates => "/etc/rc2.d/S20tahoe-${name}",
       }
-
-      service {"tahoe-${name}":
-        ensure  => running,
-        require => [File["/etc/init.d/tahoe-${name}"], Package['tahoe-lafs']],
-      }
-
     }
 
     absent: {
