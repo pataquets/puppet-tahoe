@@ -95,6 +95,10 @@ define tahoe::storage (
   $webport             = false,
   $stats_gatherer_furl = false,
   $helper_furl         = false,
+  $readonly            = false,
+  $shares_needed       = 3,
+  $shares_happy        = 7,
+  $shares_total        = 10,
 ) {
   tahoe::client {$name:
     ensure              => $ensure,
@@ -104,6 +108,10 @@ define tahoe::storage (
     stats_gatherer_furl => $stats_gatherer_furl,
     helper_furl         => $helper_furl,
     storage             => true,
+    readonly            => $readonly,
+    shares_needed       => $shares_needed,
+    shares_happy        => $shares_happy,
+    shares_total        => $shares_total,
   }
 }
 
@@ -131,8 +139,12 @@ define tahoe::client (
   $webport             = 'tcp:3456:interface=127.0.0.1',
   $stats_gatherer_furl = false,
   $helper_furl         = false,
-  $storage             = false,
   $helper              = false,
+  $storage             = false,
+  $readonly            = false,
+  $shares_needed       = 3,
+  $shares_happy        = 7,
+  $shares_total        = 10,
 ) {
   tahoe::node {$name:
     ensure              => $ensure,
@@ -142,8 +154,12 @@ define tahoe::client (
     webport             => $webport,
     stats_gatherer_furl => $stats_gatherer_furl,
     helper_furl         => $helper_furl,
-    storage             => $storage,
     helper              => $helper,
+    storage             => $storage,
+    readonly            => $readonly,
+    shares_needed       => $shares_needed,
+    shares_happy        => $shares_happy,
+    shares_total        => $shares_total,
   }
 }
 
@@ -168,7 +184,11 @@ define tahoe::node (
   $stats_gatherer_furl = false,
   $helper_furl         = false,
   $storage             = false,
+  $readonly,
   $helper              = false,
+  $shares_needed,
+  $shares_happy,
+  $shares_total,
   ) {
   case $type {
     client,introducer,stats-gatherer: {}

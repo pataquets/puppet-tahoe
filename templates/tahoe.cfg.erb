@@ -32,11 +32,22 @@ stats_gatherer.furl = <%= @stats_gatherer_furl %>
 #shares.needed = 3
 #shares.happy = 7
 #shares.total = 10
+<%- if @shares_needed != '3' then -%>
+shares.needed = <%= @shares_needed %>
+<%- end -%>
+<%- if @shares_happy != '7' then -%>
+shares.happy = <%= @shares_happy %>
+<%- end -%>
+<%- if @shares_total != '10' then -%>
+shares.total = <%= @shares_total %>
+<%- end -%>
 
 [storage]
 # Shall this node provide storage service?
 enabled = <%= @storage %>
-#readonly =
+<%- if @readonly then -%>
+readonly = <%= @readonly %>
+<%- end -%>
 reserved_space = 1G
 #expire.enabled =
 #expire.mode =
