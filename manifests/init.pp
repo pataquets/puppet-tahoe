@@ -162,12 +162,12 @@ define tahoe::node (
   $ensure = present,
   $directory,
   $type,
-  $introducer_furl,
+  $introducer_furl     = false,
   $webport,
-  $stats_gatherer_furl,
-  $helper_furl,
-  $storage,
-  $helper,
+  $stats_gatherer_furl = false,
+  $helper_furl         = false,
+  $storage             = false,
+  $helper              = false,
   ) {
   case $type {
     client,introducer,stats-gatherer: {}
