@@ -163,6 +163,7 @@ define tahoe::node (
   $directory,
   $type,
   $introducer_furl     = false,
+  $nickname            = "${name}@${fqdn}",
   $webport,
   $stats_gatherer_furl = false,
   $helper_furl         = false,
@@ -222,8 +223,6 @@ define tahoe::node (
     content => template('tahoe/tahoe.init.erb'),
     mode    => 755,
   }
-
-  $nickname = "${name}@${fqdn}"
 
   #
   # Configuration
